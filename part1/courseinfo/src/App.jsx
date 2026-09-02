@@ -14,9 +14,22 @@ const Part = (props) => {
 
 // Content component renders the parts and the number of exercises of the parts.
 const Content = (props) => {
-  return props.course.parts.map((part) => {
-    return <Part part={part.name} exercises={part.exercises} />;
-  });
+  return (
+    <div>
+      <Part
+        part={props.course.parts[0].name}
+        exercises={props.course.parts[0].exercises}
+      />
+      <Part
+        part={props.course.parts[1].name}
+        exercises={props.course.parts[1].exercises}
+      />
+      <Part
+        part={props.course.parts[2].name}
+        exercises={props.course.parts[2].exercises}
+      />
+    </div>
+  );
 };
 
 // Total component renders the total number of exercises
@@ -24,9 +37,9 @@ const Total = (props) => {
   return (
     <p>
       Number of exercises{" "}
-      {props.exercises["parts"][0].exercises +
-        props.exercises["parts"][1].exercises +
-        props.exercises["parts"][2].exercises}
+      {props.exercises.parts[0].exercises +
+        props.exercises.parts[1].exercises +
+        props.exercises.parts[2].exercises}
     </p>
   );
 };
