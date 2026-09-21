@@ -4,6 +4,8 @@ import phoneService from "./services/phones";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
+
 import { useEffect } from "react";
 
 const App = () => {
@@ -11,6 +13,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     phoneService.getAll().then((allNumbers) => {
@@ -56,10 +59,12 @@ const App = () => {
             ),
           )
           .catch((error) => {
-            console.log(
-              error,
-              `${existingObject.name} has already been deleted`,
-            );
+            setMessage({
+              content: `Information of ${existingObject.name} has already been removed from the server`,
+              type: "error",
+            });
+            console.log(error);
+
             setPersons(
               persons.filter((person) => person.id !== existingObject.id),
             );
@@ -78,6 +83,10 @@ const App = () => {
       .then((returnedData) => setPersons([...persons, returnedData]));
     setNewName("");
     setPhoneNumber("");
+    setMessage({
+      content: `added ${newName}`,
+      type: "success",
+    });
   };
 
   const handleDelete = (id) => {
@@ -91,9 +100,10 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification message={message} setMessage={setMessage} />
       <Filter value={filter} onInput={handleFilterChange} />
-      <h2>Add a new</h2>
+      <h1>Add a new</h1>
       <PersonForm
         onSubmit={handleSubmit}
         nameValue={newName}
@@ -101,7 +111,7 @@ const App = () => {
         phoneValue={phoneNumber}
         onPhoneChange={handleNumberChange}
       />
-      <h2>Numbers</h2>
+      <h1>Numbers</h1>
       <Persons list={filteredList} onClick={handleDelete} />
     </div>
   );

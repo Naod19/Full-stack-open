@@ -1,9 +1,9 @@
 {
   "persons": [
     {
-      "id": "W1bXlLa92v0",
-      "name": "hello",
-      "number": "342-98767212"
+      "name": "Naod",
+      "number": "083-987823",
+      "id": "LRYFOsXsVZM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
