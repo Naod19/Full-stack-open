@@ -16,8 +16,6 @@ app.use(
   ),
 );
 
-const PORT = 3001;
-
 let phoneList = [
   {
     id: "1",
@@ -100,6 +98,8 @@ const unknownEndpoint = (req, res) => {
 };
 
 app.use(unknownEndpoint);
+
+const PORT = 3001;
 
 app.listen(PORT, () => {
   console.log(`App is running on port ${PORT}`);
