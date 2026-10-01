@@ -47,7 +47,7 @@ const App = () => {
           (person) => person.name === newName,
         );
 
-        const updatedObject = { ...existingObject, number: phoneNumber };
+        const updatedObject = { ...existingObject, phoneNum: phoneNumber };
 
         phoneService
           .update(existingObject.id, updatedObject)
@@ -75,7 +75,7 @@ const App = () => {
 
     const newPerson = {
       name: newName,
-      number: phoneNumber,
+      phoneNum: phoneNumber,
     };
 
     phoneService

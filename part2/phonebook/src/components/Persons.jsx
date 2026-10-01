@@ -3,7 +3,7 @@ const Persons = ({ list, onClick }) => {
     <div>
       {list.map((person) => (
         <div key={person.id}>
-          {person.name}: {person.number}
+          {person.name}: {person.phoneNum}
           <button
             onClick={() => {
               if (window.confirm(`delete ${person.name} ?`)) onClick(person.id);

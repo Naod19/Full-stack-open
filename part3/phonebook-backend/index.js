@@ -1,5 +1,7 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
+const Person = require("./models/person");
 const app = express();
 
 app.use(express.json());
@@ -17,29 +19,6 @@ app.use(
   ),
 );
 
-let phoneList = [
-  {
-    id: "1",
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: "2",
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: "3",
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: "4",
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
 app.get("/info", (req, res) => {
   const time = new Date();
   res.send(`Phonebook has info for ${phoneList.length} people
@@ -49,19 +28,14 @@ app.get("/info", (req, res) => {
 
 //Get all persons
 app.get("/api/persons", (req, res) => {
-  res.json(phoneList);
+  Person.find({}).then((person) => res.send(person));
 });
 
 //Get a person
 app.get("/api/persons/:id", (req, res) => {
   const id = req.params.id;
-  const person = phoneList.find((person) => person.id === id);
 
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
-  }
+  Person.findById(id).then((person) => res.json(person));
 });
 
 //Delete a person
@@ -73,25 +47,22 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 //Add a new person
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", async (req, res) => {
   const body = req.body;
-  const existingPerson = phoneList.some((person) => person.name === body.name);
+  const existingPerson = await Person.findOne({ name: body.name });
 
-  if (!body.name || !body.number) {
+  if (!body.name || !body.phoneNum) {
     return res.status(400).json({ error: "entries must not be empty" });
   } else if (existingPerson) {
     return res.status(400).json({ error: "name must be unique" });
   }
 
-  const person = {
-    id: String(Math.random() * 10),
+  const person = new Person({
     name: body.name,
-    number: body.number,
-  };
+    phoneNum: body.phoneNum,
+  });
 
-  phoneList = [...phoneList, person];
-
-  res.json(person);
+  person.save().then((savedPerson) => res.json(savedPerson));
 });
 
 const unknownEndpoint = (req, res) => {
@@ -100,7 +71,7 @@ const unknownEndpoint = (req, res) => {
 
 app.use(unknownEndpoint);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`App is running on port ${PORT}`);
