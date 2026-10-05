@@ -107,5 +107,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
-	console.log(`App is running on port http://localhost:${PORT}`);
+	console.log(`App is running on Port http://localhost:${PORT}`);
 });
