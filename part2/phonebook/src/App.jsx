@@ -76,7 +76,7 @@ const App = () => {
 			phoneNum: phoneNumber,
 		};
 
-		if (!newPerson.name === "") {
+		if (newName !== "") {
 			phoneService
 				.create(newPerson)
 				.then((returnedData) => setPersons([...persons, returnedData]));
