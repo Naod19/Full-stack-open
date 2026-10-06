@@ -26,6 +26,21 @@ app.get("/api/notes/:id", (req, res, next) => {
 		});
 });
 
+app.post("/api/notes", (req, res, next) => {
+	const body = req.body;
+
+	const note = new Note({
+		content: body.content,
+		important: body.important || false,
+	});
+
+	note.save()
+		.then((savedNote) => {
+			res.json(savedNote);
+		})
+		.catch((error) => next(error));
+});
+
 app.put("/api/notes/:id", (req, res) => {
 	const { content, important } = req.body;
 
@@ -66,7 +81,9 @@ const errorHandler = (error, req, res, next) => {
 	console.log(error.message);
 
 	if (error.name === "CastError") {
-		return res.status(400).send({ error: "Malformatted id" });
+		return res.status(400).json({ error: "Malformatted id" });
+	} else if (error.name === "ValidationError") {
+		return res.status(400).json({ error: error.message });
 	}
 
 	next(error);
