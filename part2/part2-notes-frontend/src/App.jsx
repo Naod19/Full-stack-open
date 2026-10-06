@@ -1,86 +1,86 @@
 import { useEffect, useState } from "react";
+import Footer from "./components/Footer";
 import Note from "./components/Note";
 import Notification from "./components/Notification";
-import Footer from "./components/Footer";
 import noteService from "./services/notes";
 
 const App = () => {
-  const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState("");
-  const [showAll, setShowAll] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
+	const [notes, setNotes] = useState([]);
+	const [newNote, setNewNote] = useState("");
+	const [showAll, setShowAll] = useState(true);
+	const [errorMessage, setErrorMessage] = useState(null);
 
-  useEffect(() => {
-    noteService.getAll().then((initialNotes) => {
-      setNotes(initialNotes);
-    });
-  }, []);
+	useEffect(() => {
+		noteService.getAll().then((initialNotes) => {
+			setNotes(initialNotes);
+		});
+	}, []);
 
-  const addNote = (e) => {
-    e.preventDefault();
-    const noteObject = {
-      content: newNote,
-      important: Math.random() < 0.5,
-    };
+	const addNote = (e) => {
+		e.preventDefault();
+		const noteObject = {
+			content: newNote,
+			important: Math.random() < 0.5,
+		};
 
-    noteService.create(noteObject).then((returnedNote) => {
-      setNotes([...notes, returnedNote]);
-      setNewNote("");
-    });
-  };
+		noteService.create(noteObject).then((returnedNote) => {
+			setNotes([...notes, returnedNote]);
+			setNewNote("");
+		});
+	};
 
-  const handleNoteChange = (e) => {
-    setNewNote(e.target.value);
-  };
+	const handleNoteChange = (e) => {
+		setNewNote(e.target.value);
+	};
 
-  const toggleImportanceOf = (id) => {
-    const note = notes.find((note) => note.id === id);
-    const changedNote = { ...note, important: !note.important };
+	const toggleImportanceOf = (id) => {
+		const note = notes.find((note) => note.id === id);
+		const changedNote = { ...note, important: !note.important };
 
-    noteService
-      .update(id, changedNote)
-      .then((updatedNote) =>
-        setNotes(notes.map((note) => (note.id === id ? updatedNote : note))),
-      )
-      .catch((error) => {
-        setErrorMessage(
-          `the note '${note.content}' was already deleted from the server`,
-        );
-        setTimeout(() => {
-          setErrorMessage(null);
-        }, 5000);
-        setNotes(notes.filter((n) => n.id !== id));
-        console.log(error);
-      });
-  };
+		noteService
+			.update(id, changedNote)
+			.then((updatedNote) =>
+				setNotes(notes.map((note) => (note.id === id ? updatedNote : note))),
+			)
+			.catch((error) => {
+				setErrorMessage(
+					`the note '${note.content}' was already deleted from the server`,
+				);
+				setTimeout(() => {
+					setErrorMessage(null);
+				}, 5000);
+				setNotes(notes.filter((n) => n.id !== id));
+				console.log(error);
+			});
+	};
 
-  const noteToShow = showAll ? notes : notes.filter((note) => note.important);
+	const noteToShow = showAll ? notes : notes.filter((note) => note.important);
 
-  return (
-    <div>
-      <h1>Notes</h1>
-      <Notification message={errorMessage} />
-      <button onClick={() => setShowAll(!showAll)}>
-        Show {showAll ? "important" : "all"}
-      </button>
-      <ul>
-        {noteToShow.map((note) => (
-          <Note
-            key={note.id}
-            note={note}
-            toggleImportance={() => {
-              toggleImportanceOf(note.id);
-            }}
-          />
-        ))}
-      </ul>
-      <form onSubmit={addNote}>
-        <input type="text" value={newNote} onChange={handleNoteChange} />
-        <button type="submit">Save</button>
-      </form>
-      <Footer />
-    </div>
-  );
+	return (
+		<div>
+			<h1>Notes</h1>
+			<Notification message={errorMessage} />
+			<button type="button" onClick={() => setShowAll(!showAll)}>
+				Show {showAll ? "important" : "all"}
+			</button>
+			<ul>
+				{noteToShow.map((note) => (
+					<Note
+						key={note.id}
+						note={note}
+						toggleImportance={() => {
+							toggleImportanceOf(note.id);
+						}}
+					/>
+				))}
+			</ul>
+			<form onSubmit={addNote}>
+				<input type="text" value={newNote} onChange={handleNoteChange} />
+				<button type="submit">Save</button>
+			</form>
+			<Footer />
+		</div>
+	);
 };
 
 export default App;
