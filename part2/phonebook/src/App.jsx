@@ -63,16 +63,9 @@ const App = () => {
 					)
 					.catch((error) => {
 						setMessage({
-							content: `Information of ${existingObject.name} has already been removed from the server`,
+							content: error.response.data.error,
 							type: "error",
 						});
-						console.log(error);
-
-						setPersons(
-							persons.filter(
-								(person) => person.id !== existingObject.id,
-							),
-						);
 					});
 			}
 			return;
@@ -83,17 +76,23 @@ const App = () => {
 			phoneNum: phoneNumber,
 		};
 
-		if (newName !== "") {
-			phoneService
-				.create(newPerson)
-				.then((returnedData) => setPersons([...persons, returnedData]));
-			setNewName("");
-			setPhoneNumber("");
-			setMessage({
-				content: `added ${newName}`,
-				type: "success",
+		phoneService
+			.create(newPerson)
+			.then((returnedData) => {
+				setPersons([...persons, returnedData]);
+				setNewName("");
+				setPhoneNumber("");
+				setMessage({
+					content: `added ${newName}`,
+					type: "success",
+				});
+			})
+			.catch((error) => {
+				setMessage({
+					content: error.response.data.error,
+					type: "error",
+				});
 			});
-		}
 	};
 
 	const handleDelete = (id) => {

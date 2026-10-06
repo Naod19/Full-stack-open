@@ -42,7 +42,7 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 //Add a new person
-app.post("/api/persons", async (req, res) => {
+app.post("/api/persons", async (req, res, next) => {
 	const body = req.body;
 	const existingPerson = await Person.findOne({ name: body.name });
 
@@ -57,11 +57,16 @@ app.post("/api/persons", async (req, res) => {
 		phoneNum: body.phoneNum,
 	});
 
-	person.save().then((savedPerson) => res.json(savedPerson));
+	person
+		.save()
+		.then((savedPerson) => {
+			res.json(savedPerson);
+		})
+		.catch((error) => next(error));
 });
 
 //Delete a person
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
 	const id = req.params.id;
 	Person.findByIdAndDelete(id)
 		.then((result) => {
@@ -71,7 +76,7 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 //Update a person
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
 	const { phoneNum } = req.body;
 	Person.findById(req.params.id)
 		.then((person) => {
@@ -94,11 +99,13 @@ const unknownEndpoint = (req, res) => {
 
 app.use(unknownEndpoint);
 
-const errorHandler = (req, res, error, next) => {
+const errorHandler = (error, req, res, next) => {
 	console.log(error.message);
 
 	if (error.name === "CastError") {
 		return res.status(400).json({ error: "Malformatted id" });
+	} else if (error.name === "ValidationError") {
+		return res.status(400).json({ error: error.message });
 	}
 
 	next(error);
