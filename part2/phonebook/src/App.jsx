@@ -45,14 +45,19 @@ const App = () => {
 					(person) => person.name === newName,
 				);
 
-				const updatedObject = { ...existingObject, phoneNum: phoneNumber };
+				const updatedObject = {
+					...existingObject,
+					phoneNum: phoneNumber,
+				};
 
 				phoneService
 					.update(existingObject.id, updatedObject)
 					.then((updatedPerson) =>
 						setPersons(
 							persons.map((person) =>
-								person.id === updatedPerson.id ? updatedPerson : person,
+								person.id === updatedPerson.id
+									? updatedPerson
+									: person,
 							),
 						),
 					)
@@ -64,7 +69,9 @@ const App = () => {
 						console.log(error);
 
 						setPersons(
-							persons.filter((person) => person.id !== existingObject.id),
+							persons.filter(
+								(person) => person.id !== existingObject.id,
+							),
 						);
 					});
 			}

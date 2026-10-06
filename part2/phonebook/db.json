@@ -1,10 +1,10 @@
 {
-  "persons": [
-    {
-      "name": "Naod",
-      "number": "083-987823",
-      "id": "LRYFOsXsVZM"
-    }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+	"persons": [
+		{
+			"name": "Naod",
+			"number": "083-987823",
+			"id": "LRYFOsXsVZM"
+		}
+	],
+	"$schema": "./node_modules/json-server/schema.json"
 }

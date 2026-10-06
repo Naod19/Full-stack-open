@@ -40,7 +40,9 @@ const App = () => {
 		noteService
 			.update(id, changedNote)
 			.then((updatedNote) =>
-				setNotes(notes.map((note) => (note.id === id ? updatedNote : note))),
+				setNotes(
+					notes.map((note) => (note.id === id ? updatedNote : note)),
+				),
 			)
 			.catch((error) => {
 				setErrorMessage(
@@ -75,7 +77,11 @@ const App = () => {
 				))}
 			</ul>
 			<form onSubmit={addNote}>
-				<input type="text" value={newNote} onChange={handleNoteChange} />
+				<input
+					type="text"
+					value={newNote}
+					onChange={handleNoteChange}
+				/>
 				<button type="submit">Save</button>
 			</form>
 			<Footer />

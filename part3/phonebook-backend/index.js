@@ -81,7 +81,9 @@ app.put("/api/persons/:id", (req, res) => {
 
 			person.phoneNum = phoneNum;
 
-			return person.save().then((updatedPerson) => res.json(updatedPerson));
+			return person
+				.save()
+				.then((updatedPerson) => res.json(updatedPerson));
 		})
 		.catch((error) => next(error));
 });
