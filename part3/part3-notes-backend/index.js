@@ -41,7 +41,7 @@ app.post("/api/notes", (req, res, next) => {
 		.catch((error) => next(error));
 });
 
-app.put("/api/notes/:id", (req, res) => {
+app.put("/api/notes/:id", (req, res, next) => {
 	const { content, important } = req.body;
 
 	if (!content) {
@@ -67,7 +67,7 @@ app.put("/api/notes/:id", (req, res) => {
 app.delete("/api/notes/:id", (req, res, next) => {
 	const id = req.params.id;
 	Note.findByIdAndDelete(id)
-		.then((result) => res.status(204).end())
+		.then(() => res.status(204).end())
 		.catch((error) => next(error));
 });
 

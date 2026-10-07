@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static("dist"));
 
-morgan.token("request-body", (req, res) => {
+morgan.token("request-body", (req) => {
 	if (req.method === "POST") {
 		return JSON.stringify(req.body);
 	}
@@ -69,7 +69,7 @@ app.post("/api/persons", async (req, res, next) => {
 app.delete("/api/persons/:id", (req, res, next) => {
 	const id = req.params.id;
 	Person.findByIdAndDelete(id)
-		.then((result) => {
+		.then(() => {
 			res.status(204).end();
 		})
 		.catch((error) => next(error));

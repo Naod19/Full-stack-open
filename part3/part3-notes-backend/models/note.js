@@ -4,10 +4,10 @@ mongoose.set("strictQuery", false);
 
 const url = process.env.MONGODB_URI;
 
-console.log("connecting to MongoDB", url);
+console.log("connecting to MongoDB");
 mongoose
 	.connect(url, { family: 4, dbName: "noteApp" })
-	.then((result) => {
+	.then(() => {
 		console.log("connected to MongoDB");
 	})
 	.catch((error) => {
