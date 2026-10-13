@@ -10,7 +10,7 @@ const app = express();
 logger.info("connecting to mongodb");
 
 mongoose
-	.connect(config.MONGODB_URI, { family: 4, dbName: "noteApp" })
+	.connect(config.MONGODB_URI, { family: 4 })
 	.then(() => logger.info("connected to mongoDB"))
 	.catch((error) => logger.error("error connecting to mongodb", error));
 

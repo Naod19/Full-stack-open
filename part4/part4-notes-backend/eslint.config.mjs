@@ -15,7 +15,7 @@ export default [
 			"@stylistic/js": stylisticJs,
 		},
 		rules: {
-			"@stylistic/js/indent": ["error", "tab"],
+			"@stylistic/js/indent": ["error", "space"],
 			"@stylistic/js/linebreak-style": ["error", "unix"],
 			"@stylistic/js/quotes": ["error", "double"],
 			"@stylistic/js/semi": ["error", "always"],

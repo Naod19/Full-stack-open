@@ -124,3 +124,28 @@ describe("favorite blog", () => {
 		});
 	});
 });
+
+describe("most blogs", () => {
+	test("of an empty array list should return 0", () => {
+		const blogs = [];
+
+		assert.strictEqual(listHelper.mostBlogs(blogs), 0);
+	});
+
+	test("of a list containing one blog should return the blog itself", () => {
+		const result = listHelper.mostBlogs(listWithOneBlog);
+
+		assert.deepStrictEqual(result, {
+			author: "Edsger W. Dijkstra",
+			blogs: 1,
+		});
+	});
+
+	test("of a list containing multiple blogs should return the blog with the highest like", () => {
+		const result = listHelper.mostBlogs(blogs);
+		assert.deepStrictEqual(result, {
+			author: "Robert C. Martin",
+			blogs: 3,
+		});
+	});
+});
