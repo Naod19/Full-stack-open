@@ -9,7 +9,7 @@ const url = process.env.TEST_MONGODB_URI;
 
 mongoose.set("strictQuery", false);
 
-mongoose.connect(url, { family: 4, dbName: "noteApp" });
+mongoose.connect(url, { family: 4 });
 
 const noteSchema = new mongoose.Schema({
 	content: String,

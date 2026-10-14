@@ -4,11 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --watch index.js",
-    "test": "node --test",
-    "lint": "eslint .",
-    "build:ui": "rm -rf dist && cd ../../part2/part2-notes-frontend && npm  run build && cp -r dist ../../part3/part3-notes-backend",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "NODE_ENV=test node --test",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",

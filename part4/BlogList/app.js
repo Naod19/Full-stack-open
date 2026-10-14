@@ -10,7 +10,7 @@ app.use(express.json());
 
 logger.info("connecting to mongodb");
 mongoose
-	.connect(configs.MONGODB_URI, { family: 4, dbName: "blogApp" })
+	.connect(configs.MONGODB_URI, { family: 4 })
 	.then(() => {
 		logger.info("connected to mongodb");
 	})
