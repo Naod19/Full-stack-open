@@ -71,8 +71,8 @@ test("if like property is missing it defaults to 0", async () => {
 	assert.strictEqual(savedBlog.likes, 0);
 });
 
-describe("server should respond with a status of 400", () => {
-	test("if title property is missing", async () => {
+describe("server should respond with a status of 400 when creating a new blog", () => {
+	test("if title property of the blog is missing", async () => {
 		const newBlog = {
 			author: "Naod",
 			url: "www.helpabrother.com",
@@ -81,7 +81,7 @@ describe("server should respond with a status of 400", () => {
 
 		await api.post("/api/blogs").send(newBlog).expect(400);
 	});
-	test("if url property is missing", async () => {
+	test("if url property of the blog is missing", async () => {
 		const newBlog = {
 			title: "Hello world",
 			author: "Naod",
@@ -90,6 +90,45 @@ describe("server should respond with a status of 400", () => {
 
 		await api.post("/api/blogs").send(newBlog).expect(400);
 	});
+});
+
+describe("blog likes can be updated", () => {
+	test("if valid id is given", async () => {
+		const blogsAtStart = await helper.blogsInDb();
+		const blogToUpdate = blogsAtStart[0];
+
+		const response = await api
+			.put(`/api/blogs/${blogToUpdate.id}`)
+			.send({ likes: 230 })
+			.expect(200);
+
+		const blogsAtEnd = await helper.blogsInDb();
+
+		const updatedBlog = blogsAtEnd.find(
+			(blog) => blog.id === response.body.id,
+		);
+
+		assert.strictEqual(updatedBlog.likes, 230);
+	});
+
+	test("if non-existent id is given, server responds with a status code 404", async () => {
+		const id = "6ac762687478734454e320c2";
+
+		await api.put(`/api/blogs/${id}`).send({ likes: 230 }).expect(404);
+	});
+});
+
+test("blog is deleted if the correct id is given", async () => {
+	const blogsAtStart = await helper.blogsInDb();
+	const blogToDelete = blogsAtStart[0];
+
+	await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+	const blogsAtEnd = await helper.blogsInDb();
+	const ids = blogsAtEnd.map((blog) => blog.id);
+
+	assert.strictEqual(blogsAtEnd.length, helper.intialBlogs.length - 1);
+	assert(!ids.includes(blogToDelete.id));
 });
 
 after(async () => {
