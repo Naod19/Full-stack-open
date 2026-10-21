@@ -1,10 +1,12 @@
 const assert = require("node:assert");
-const { test, after, beforeEach, describe } = require("node:test");
+const { test, after, beforeEach, describe, before } = require("node:test");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const supertest = require("supertest");
 const app = require("../app");
 const helper = require("./test_helper");
 const Note = require("../models/note");
+const User = require("../models/user");
 
 const api = supertest(app);
 
@@ -61,10 +63,20 @@ describe("when there is initially some notes saved", () => {
 	});
 
 	describe("addition of a new note", () => {
+		let user;
+
+		beforeEach(async () => {
+			await User.deleteMany({});
+			const passwordHash = await bcrypt.hash("password", 10);
+			user = new User({ username: "Jake", passwordHash });
+			await user.save();
+		});
+
 		test("succeeds with valid data", async () => {
 			const newNote = {
 				content: "async/await simplifies making async calls",
 				important: true,
+				userId: user._id,
 			};
 
 			await api
@@ -113,6 +125,60 @@ describe("when there is initially some notes saved", () => {
 				helper.initialNotes.length - 1,
 			);
 		});
+	});
+});
+
+describe("when there is initially one user in db", () => {
+	beforeEach(async () => {
+		await User.deleteMany({});
+
+		const passwordHash = await bcrypt.hash("sekret", 10);
+		const user = new User({ username: "root", passwordHash });
+
+		await user.save();
+	});
+
+	test("creation succeeds with fresh username", async () => {
+		const usersAtStart = await helper.usersInDb();
+
+		const newUser = {
+			username: "Naod19",
+			name: "naod yemane",
+			password: "121480",
+		};
+
+		await api
+			.post("/api/users")
+			.send(newUser)
+			.expect(201)
+			.expect("Content-type", /application\/json/);
+
+		const usersAtEnd = await helper.usersInDb();
+		assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1);
+
+		const usernames = usersAtEnd.map((user) => user.username);
+		assert(usernames.includes(newUser.username));
+	});
+
+	test("creation fails with proper statuscode and message if username already taken", async () => {
+		const usersAtStart = await helper.usersInDb();
+
+		const newUser = {
+			username: "root",
+			name: "Superuser",
+			password: "great",
+		};
+
+		const result = await api
+			.post("/api/users")
+			.send(newUser)
+			.expect(400)
+			.expect("Content-Type", /application\/json/);
+
+		const usersAtEnd = await helper.usersInDb();
+		assert(result.body.error.includes("expected `username` to be unique"));
+
+		assert.strictEqual(usersAtEnd.length, usersAtStart.length);
 	});
 });
 
