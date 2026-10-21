@@ -48,7 +48,7 @@ test("a valid blog can be created", async () => {
 
 	assert.strictEqual(blogsAtEnd.length, helper.intialBlogs.length + 1);
 	const savedBlog = blogsAtEnd.find((blog) => blog.id === response.body.id);
-	const { id, ...restOfBlog } = savedBlog;
+	const { id, user, ...restOfBlog } = savedBlog;
 	assert.deepStrictEqual(restOfBlog, newBlog);
 });
 
