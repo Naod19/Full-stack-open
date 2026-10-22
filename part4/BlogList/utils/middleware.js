@@ -2,6 +2,17 @@ const unknownEndpoint = (req, res) => {
 	return res.status(404).json({ message: "unknown endpoint" });
 };
 
+const tokenExtractor = (req, res, next) => {
+	const authHeader = req.get("authorization");
+
+	req.token =
+		authHeader && authHeader.startsWith("Bearer ")
+			? authHeader.split(" ")[1]
+			: null;
+
+	next();
+};
+
 const errorHandler = (error, req, res, next) => {
 	if (
 		error.name === "ValidationError" &&
@@ -27,7 +38,13 @@ const errorHandler = (error, req, res, next) => {
 		return res.status(400).json({ error: "username already exists" });
 	}
 
+	if (error.name === "JsonWebTokenError") {
+		return res
+			.status(401)
+			.json({ error: "Invalid token", err: error.mesager });
+	}
+
 	next(error);
 };
 
-module.exports = { unknownEndpoint, errorHandler };
+module.exports = { unknownEndpoint, errorHandler, tokenExtractor };
