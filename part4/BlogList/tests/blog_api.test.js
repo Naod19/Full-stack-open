@@ -1,16 +1,41 @@
 const assert = require("node:assert");
 const { test, after, beforeEach, describe } = require("node:test");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
+const User = require("../models/user");
 const helper = require("../utils/blog_helper");
 
 const api = supertest(app);
 
+let token;
+
 beforeEach(async () => {
 	await Blog.deleteMany({});
-	await Blog.insertMany(helper.intialBlogs);
+	await User.deleteMany({});
+
+	const user = new User({
+		username: "root",
+		name: "admin",
+		password: await bcrypt.hash("sekret", 10),
+	});
+
+	await user.save();
+
+	const blogsWithUsers = helper.intialBlogs.map((blog) => ({
+		...blog,
+		user: user._id,
+	}));
+
+	await Blog.insertMany(blogsWithUsers);
+
+	token = jwt.sign(
+		{ username: user.username, id: user._id },
+		process.env.TOKEN_SECRET,
+	);
 });
 
 test("the correct number of blogs is returned and are in json", async () => {
@@ -41,6 +66,7 @@ test("a valid blog can be created", async () => {
 	const response = await api
 		.post("/api/blogs")
 		.send(newBlog)
+		.auth(token, { type: "bearer" })
 		.expect(201)
 		.expect("Content-type", /application\/json/);
 
@@ -50,6 +76,21 @@ test("a valid blog can be created", async () => {
 	const savedBlog = blogsAtEnd.find((blog) => blog.id === response.body.id);
 	const { id, user, ...restOfBlog } = savedBlog;
 	assert.deepStrictEqual(restOfBlog, newBlog);
+});
+
+test("if token is not provided the server responds with status code 401", async () => {
+	const newBlog = {
+		title: "Hello world",
+		author: "Naod",
+		url: "www.helpabrother.com",
+		likes: 20,
+	};
+
+	await api.post("/api/blogs").send(newBlog).expect(401);
+
+	const blogsAtEnd = await helper.blogsInDb();
+
+	assert.strictEqual(blogsAtEnd.length, helper.intialBlogs.length);
 });
 
 test("if like property is missing it defaults to 0", async () => {
@@ -62,6 +103,7 @@ test("if like property is missing it defaults to 0", async () => {
 	const response = await api
 		.post("/api/blogs")
 		.send(newBlog)
+		.auth(token, { type: "bearer" })
 		.expect(201)
 		.expect("Content-type", /application\/json/);
 
@@ -79,7 +121,11 @@ describe("server should respond with a status of 400 when creating a new blog", 
 			likes: 10,
 		};
 
-		await api.post("/api/blogs").send(newBlog).expect(400);
+		await api
+			.post("/api/blogs")
+			.auth(token, { type: "bearer" })
+			.send(newBlog)
+			.expect(400);
 	});
 	test("if url property of the blog is missing", async () => {
 		const newBlog = {
@@ -88,7 +134,11 @@ describe("server should respond with a status of 400 when creating a new blog", 
 			likes: 10,
 		};
 
-		await api.post("/api/blogs").send(newBlog).expect(400);
+		await api
+			.post("/api/blogs")
+			.auth(token, { type: "bearer" })
+			.send(newBlog)
+			.expect(400);
 	});
 });
 
@@ -122,7 +172,10 @@ test("blog is deleted if the correct id is given", async () => {
 	const blogsAtStart = await helper.blogsInDb();
 	const blogToDelete = blogsAtStart[0];
 
-	await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+	await api
+		.delete(`/api/blogs/${blogToDelete.id}`)
+		.auth(token, { type: "bearer" })
+		.expect(204);
 
 	const blogsAtEnd = await helper.blogsInDb();
 	const ids = blogsAtEnd.map((blog) => blog.id);
