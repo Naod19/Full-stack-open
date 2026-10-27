@@ -15,11 +15,14 @@ const App = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [user, setUser] = useState(null);
+	const [loginVisible, setLoginVisible] = useState(false);
 
 	useEffect(() => {
-		noteService.getAll().then((initialNotes) => {
-			setNotes(initialNotes);
-		});
+		const fecthAllNotes = async () => {
+			const notes = await noteService.getAll();
+			setNotes(notes);
+		};
+		fecthAllNotes();
 	}, []);
 
 	useEffect(() => {
@@ -32,44 +35,45 @@ const App = () => {
 		}
 	}, []);
 
-	const addNote = (e) => {
+	const addNote = async (e) => {
 		e.preventDefault();
 		const noteObject = {
 			content: newNote,
 			important: Math.random() < 0.5,
 		};
 
-		noteService.create(noteObject).then((returnedNote) => {
-			setNotes([...notes, returnedNote]);
+		const savedNote = await noteService.create(noteObject);
+		if (savedNote) {
+			setNotes([...notes, savedNote]);
 			setNewNote("");
-		});
+		}
 	};
 
 	const handleNoteChange = (e) => {
 		setNewNote(e.target.value);
 	};
 
-	const toggleImportanceOf = (id) => {
+	const toggleImportanceOf = async (id) => {
 		const note = notes.find((note) => note.id === id);
 		const changedNote = { ...note, important: !note.important };
 
-		noteService
-			.update(id, changedNote)
-			.then((updatedNote) =>
+		try {
+			const updatedNote = await noteService.update(id, changedNote);
+			if (updatedNote) {
 				setNotes(
 					notes.map((note) => (note.id === id ? updatedNote : note)),
-				),
-			)
-			.catch((error) => {
-				setErrorMessage(
-					`the note '${note.content}' was already deleted from the server`,
 				);
-				setTimeout(() => {
-					setErrorMessage(null);
-				}, 5000);
-				setNotes(notes.filter((n) => n.id !== id));
-				console.log(error);
-			});
+			}
+		} catch (error) {
+			setErrorMessage(
+				`the note '${note.content}' was already deleted from the server`,
+			);
+			setTimeout(() => {
+				setErrorMessage(null);
+			}, 5000);
+			setNotes(notes.filter((n) => n.id !== id));
+			console.log(error);
+		}
 	};
 
 	const handleLogin = async (e) => {
@@ -95,21 +99,43 @@ const App = () => {
 		}
 	};
 
+	const loginForm = () => {
+		const hideWhenVisble = { display: loginVisible ? "none" : "" };
+		const showWhenVisble = { display: loginVisible ? "" : "none" };
+
+		return (
+			<div>
+				<div style={hideWhenVisble}>
+					<button type="button" onClick={() => setLoginVisible(true)}>
+						Log in
+					</button>
+				</div>
+				<div style={showWhenVisble}>
+					<LoginForm
+						onSubmit={handleLogin}
+						usernameValue={username}
+						onUsernameChange={setUsername}
+						passwordValue={password}
+						onPasswordChange={setPassword}
+					/>
+					<button
+						type="button"
+						onClick={() => setLoginVisible(false)}
+					>
+						cancel
+					</button>
+				</div>
+			</div>
+		);
+	};
+
 	const noteToShow = showAll ? notes : notes.filter((note) => note.important);
 
 	return (
 		<div>
 			<h1>Notes</h1>
 			<Notification message={errorMessage} />
-			{!user && (
-				<LoginForm
-					onSubmit={handleLogin}
-					usernameValue={username}
-					onUsernameChange={setUsername}
-					passwordValue={password}
-					onPasswordChange={setPassword}
-				/>
-			)}
+			{!user && loginForm()}
 			{user && (
 				<div>
 					<p>{user.name} logged in</p>
