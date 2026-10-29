@@ -1,21 +1,25 @@
-const LoginForm = ({
-	onSubmit,
-	usernameValue,
-	passwordValue,
-	onUsernameChange,
-	onPasswordChange,
-}) => {
+import { useState } from "react";
+
+const LoginForm = ({ login }) => {
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+
+	const handleLogin = (e) => {
+		e.preventDefault();
+		login({ username, password });
+		setUsername("");
+		setPassword("");
+	};
+
 	return (
-		<form onSubmit={onSubmit}>
+		<form onSubmit={handleLogin}>
 			<div>
 				<label>
 					username
 					<input
 						type="text"
-						value={usernameValue}
-						onChange={({ target }) =>
-							onUsernameChange(target.value)
-						}
+						value={username}
+						onChange={({ target }) => setUsername(target.value)}
 					/>
 				</label>
 			</div>
@@ -24,10 +28,8 @@ const LoginForm = ({
 					password
 					<input
 						type="password"
-						value={passwordValue}
-						onChange={({ target }) =>
-							onPasswordChange(target.value)
-						}
+						value={password}
+						onChange={({ target }) => setPassword(target.value)}
 					/>
 				</label>
 			</div>
