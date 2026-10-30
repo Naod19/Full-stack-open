@@ -15,6 +15,8 @@ blogRouter.post("/", userExtractor, async (req, res) => {
 	const blog = new Blog({ ...req.body, user: user.id });
 	const savedBlog = await blog.save();
 
+	await savedBlog.populate("user", "-blogs");
+
 	user.blogs = [...user.blogs, savedBlog._id];
 	await user.save();
 
@@ -25,7 +27,7 @@ blogRouter.put("/:id", async (req, res) => {
 	const id = req.params.id;
 	const { likes } = req.body;
 
-	const blogToUpdate = await Blog.findById(id);
+	const blogToUpdate = await Blog.findById(id).populate("user", "-blogs");
 
 	if (!blogToUpdate) {
 		return res.status(404).json({ message: "Blog was not found" });
